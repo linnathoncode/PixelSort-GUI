@@ -13,8 +13,9 @@ FRAMEY = 300
 root = CTk()
 root.geometry("1280x720")
 root.title("Pixel Sort")
+root.iconbitmap("pixelsortlogo.ico")
 
-original_image = Image.open("cat.jpeg")
+original_image = None
 displayed_image = None
 
 #image frame
@@ -26,7 +27,6 @@ def display_image():
     global displayed_image
     img = import_image()
     original_image = img
-    #this img will be used afterwards
 
     if img is not None:
         #aspect ratios
@@ -50,10 +50,10 @@ def display_image():
  # Resize image while maintaining aspect ratio
 
 def save_image():
-    if displayed_image is not None:
+    if displayed_image or original_image is not None:
         export_image(original_image)
     else:
-        tk.messagebox.showerror("error", "no image is being displayed")
+        tk.messagebox.showerror("error", "No image is imported!")
 
 def get_pixels():
     #getting the HSV value
@@ -78,7 +78,6 @@ export_button.pack(pady=0)
 process_image_button = CTkButton(root, width=200, height=40, text="Process Image", 
                           command=get_pixels)
 process_image_button.pack(pady=10)
-
 
 image_label = CTkLabel(image_frame, text="")
 image_label.pack(pady=10)
