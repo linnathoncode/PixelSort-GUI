@@ -1,5 +1,5 @@
 from customtkinter import *
-from imageUtils import import_image
+from imageUtils import import_image, export_image
 import tkinter as tk
 from PIL import Image
 #theme
@@ -9,17 +9,23 @@ set_default_color_theme("red.json")
 FRAMEX = 600 
 FRAMEY = 300
 
-
 #setup
 root = CTk()
 root.geometry("1280x720")
+root.title("Pixel Sort")
+
+original_image = Image.open("cat.jpeg")
+displayed_image = None
 
 #image frame
 image_frame = CTkFrame(root, width=FRAMEX, height=FRAMEY)
 image_frame.pack(pady=20, padx=20)   
 
 def display_image():
+    global original_image
+    global displayed_image
     img = import_image()
+    original_image = img
     #this img will be used afterwards
 
     if img is not None:
@@ -43,9 +49,21 @@ def display_image():
     image_label.configure(image=displayed_image)
  # Resize image while maintaining aspect ratio
 
+def save_image():
+    if displayed_image is not None:
+        export_image(original_image)
+    else:
+        tk.messagebox.showerror("error", "no image is being displayed")
 
-import_button = CTkButton(root, width=200, height=40, text="Import Image", command=display_image)
-import_button.pack(pady=100)
+
+import_button = CTkButton(root, width=200, height=40, text="Import Image", 
+                          command=display_image)
+import_button.pack(pady=10)
+export_button = CTkButton(root, width=200, height=40, text="Export Image", 
+                          command=save_image)
+export_button.pack(pady=0)
+
+
 
 image_label = CTkLabel(image_frame, text="")
 image_label.pack(pady=10)
