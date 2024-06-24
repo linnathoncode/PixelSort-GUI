@@ -55,14 +55,29 @@ def save_image():
     else:
         tk.messagebox.showerror("error", "no image is being displayed")
 
+def get_pixels():
+    #getting the HSV value
+    test_image = original_image.convert('HSV')
+    image_pixels = list(test_image.getdata())
+
+    #extract only saturation values
+    image_pixels_saturation = [t[1] for t in image_pixels]
+    print(image_pixels_saturation)
+
 
 import_button = CTkButton(root, width=200, height=40, text="Import Image", 
                           command=display_image)
 import_button.pack(pady=10)
+
+
 export_button = CTkButton(root, width=200, height=40, text="Export Image", 
                           command=save_image)
 export_button.pack(pady=0)
 
+
+process_image_button = CTkButton(root, width=200, height=40, text="Process Image", 
+                          command=get_pixels)
+process_image_button.pack(pady=10)
 
 
 image_label = CTkLabel(image_frame, text="")
