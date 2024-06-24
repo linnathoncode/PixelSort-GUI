@@ -3,7 +3,7 @@ from imageUtils import import_image, export_image
 import tkinter as tk
 from PIL import Image
 #theme
-set_appearance_mode("light")
+set_appearance_mode("system")
 set_default_color_theme("red.json")
 
 FRAMEX = 600 
@@ -22,6 +22,7 @@ displayed_image = None
 image_frame = CTkFrame(root, width=FRAMEX, height=FRAMEY)
 image_frame.pack(pady=20, padx=20)   
 
+
 def display_image():
     global original_image
     global displayed_image
@@ -29,6 +30,7 @@ def display_image():
     original_image = img
 
     if img is not None:
+        
         #aspect ratios
         img_ratio = img.width/img.height
         frame_ratio = FRAMEX/FRAMEY
@@ -38,16 +40,17 @@ def display_image():
 
             new_width =FRAMEX
             new_height = int(FRAMEX*img_ratio)
+
         #image is taller than the frame
         else:
             new_height =FRAMEY
             new_width = int(FRAMEY*img_ratio)
-            
 
-    img = img.resize((new_width,new_height), Image.LANCZOS)
-    displayed_image= CTkImage(light_image=img, dark_image=img, size=(new_width,new_height))
-    image_label.configure(image=displayed_image)
- # Resize image while maintaining aspect ratio
+        # Resize image while maintaining aspect ratio
+        img = img.resize((new_width,new_height), Image.LANCZOS)
+        displayed_image= CTkImage(light_image=img, dark_image=img, size=(new_width,new_height))
+        image_label.configure(image=displayed_image)    
+
 
 def save_image():
     if displayed_image or original_image is not None:

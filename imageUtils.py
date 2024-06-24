@@ -2,10 +2,12 @@ from PIL import Image
 from tkinter import filedialog
 
 def import_image():
-    file_path = filedialog.askopenfilename(filetypes=[("Image files", "*.jpeg *.jpg *.png")])
-    if file_path:
+    try:
+        file_path = filedialog.askopenfilename(filetypes=[("Image files", "*.jpeg *.jpg *.png")])
         img = Image.open(file_path)
-        return img
+    except:
+        return None
+    return img
 
 def export_image(img):
     file_path =filedialog.askdirectory()
