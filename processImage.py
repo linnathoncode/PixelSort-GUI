@@ -3,7 +3,7 @@ import tkinter as tk
 def processImage(image):
 
     og_format = image.format
-
+    og_mode = image.mode
     #convert the image to HSV mode
     pre_image = image.convert('HSV')
     
@@ -20,11 +20,12 @@ def processImage(image):
     #put the sorted pixel data into the new image
     sorted_image.putdata(sorted_image_pixels)
     
-    #convert the image back to RGBA mode
-    final_image = sorted_image.convert('RGBA')
+    #convert the image back to its original mode
+    final_image = sorted_image.convert(og_mode)
 
     #convert back to original format 
     final_image.format = og_format
+
     return final_image
     
 
