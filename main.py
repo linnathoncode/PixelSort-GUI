@@ -1,5 +1,6 @@
 from customtkinter import *
-from imageUtils import import_image, export_image
+from imageUtils import importImage, exportImage
+from processImage import processImage
 import tkinter as tk
 from PIL import Image
 #theme
@@ -17,18 +18,21 @@ root.iconbitmap("pixelsortlogo.ico")
 
 original_image = None
 displayed_image = None
-
+processed_image = None
 #image frame
 image_frame = CTkFrame(root, width=FRAMEX, height=FRAMEY)
 image_frame.pack(pady=20, padx=20)   
 
 
-def display_image():
+def getImage():
     global original_image
     global displayed_image
-    img = import_image()
+    img = importImage()
     original_image = img
+    displayImage(img)
 
+def displayImage(img):
+    
     if img is not None:
         
         #aspect ratios
@@ -49,37 +53,37 @@ def display_image():
         # Resize image while maintaining aspect ratio
         img = img.resize((new_width,new_height), Image.LANCZOS)
         displayed_image= CTkImage(light_image=img, dark_image=img, size=(new_width,new_height))
-        image_label.configure(image=displayed_image)    
+        image_label.configure(image=displayed_image)   
 
-
-def save_image():
-    if displayed_image or original_image is not None:
-        export_image(original_image)
+def saveImage():
+    if processed_image is None and original_image is not None:
+        exportImage(original_image)
+    elif processed_image is not None:
+        exportImage(processed_image)
     else:
         tk.messagebox.showerror("error", "No image is imported!")
 
-def get_pixels():
-    #getting the HSV value
-    test_image = original_image.convert('HSV')
-    image_pixels = list(test_image.getdata())
-
-    #extract only saturation values
-    image_pixels_saturation = [t[1] for t in image_pixels]
-    print(image_pixels_saturation)
-
+def pixelSort():
+    if original_image is not None:
+        global processed_image
+        processed_image = Image.new(original_image.mode, original_image.size)
+        processed_image = processImage(original_image)
+        displayImage(processed_image)
+    else:
+        tk.messagebox.showerror("error", "No image is imported!")
 
 import_button = CTkButton(root, width=200, height=40, text="Import Image", 
-                          command=display_image)
+                          command=getImage)
 import_button.pack(pady=10)
 
 
 export_button = CTkButton(root, width=200, height=40, text="Export Image", 
-                          command=save_image)
+                          command=saveImage)
 export_button.pack(pady=0)
 
 
 process_image_button = CTkButton(root, width=200, height=40, text="Process Image", 
-                          command=get_pixels)
+                          command=pixelSort)
 process_image_button.pack(pady=10)
 
 image_label = CTkLabel(image_frame, text="")
