@@ -27,9 +27,14 @@ image_frame.pack(pady=20, padx=20)
 def getImage():
     global original_image
     global displayed_image
-    result = importImage()
-    if result is not None:
-         img = result
+
+    #if there is already an image imported and user calls tries to import again but not import anything
+    #img will countinue to be the already imported image 
+    if processed_image:
+        img = importImage(processed_image)
+    else: 
+        img = importImage(original_image)
+
     original_image = img
     displayImage(img)
 
@@ -54,7 +59,7 @@ def displayImage(img):
 
         # Resize image while maintaining aspect ratio
         img = img.resize((new_width,new_height), Image.LANCZOS)
-        displayed_image= CTkImage(light_image=img, dark_image=img, size=(new_width,new_height))
+        displayed_image = CTkImage(light_image=img, dark_image=img, size=(new_width,new_height))
         image_label.configure(image=displayed_image)   
 
 def saveImage():
