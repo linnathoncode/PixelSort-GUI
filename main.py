@@ -27,7 +27,9 @@ image_frame.pack(pady=20, padx=20)
 def getImage():
     global original_image
     global displayed_image
-    img = importImage()
+    result = importImage()
+    if result is not None:
+         img = result
     original_image = img
     displayImage(img)
 
