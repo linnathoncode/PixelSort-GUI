@@ -7,8 +7,11 @@ from PIL import Image
 set_appearance_mode("system")
 set_default_color_theme("red.json")
 
-FRAMEX = 600 
-FRAMEY = 300
+MAINFRAMEX = 600 
+MAINFRAMEY = 300
+
+NEWWINFRAMEX = 900
+NEWWINFRAMEY = 645
 
 #setup
 root = CTk()
@@ -20,7 +23,7 @@ original_image = None
 displayed_image = None
 processed_image = None
 #image frame
-image_frame = CTkFrame(root, width=FRAMEX, height=FRAMEY)
+image_frame = CTkFrame(root, width=MAINFRAMEX, height=MAINFRAMEY)
 image_frame.pack(pady=20, padx=20)   
 
 
@@ -36,9 +39,11 @@ def getImage():
         img = importImage(original_image)
 
     original_image = img
-    displayImage(img)
+    img = displayImage(img, MAINFRAMEX, MAINFRAMEY)
+    displayed_image = CTkImage(light_image=img, dark_image=img, size=(img.width,img.height))
+    image_label.configure(image=displayed_image)   
 
-def displayImage(img):
+def displayImage(img, FRAMEX, FRAMEY):
     
     if img is not None:
         
@@ -59,8 +64,8 @@ def displayImage(img):
 
         # Resize image while maintaining aspect ratio
         img = img.resize((new_width,new_height), Image.LANCZOS)
-        displayed_image = CTkImage(light_image=img, dark_image=img, size=(new_width,new_height))
-        image_label.configure(image=displayed_image)   
+        return img
+
 
 def saveImage():
     if processed_image is None and original_image is not None:
@@ -79,6 +84,31 @@ def pixelSort():
     else:
         tk.messagebox.showerror("error", "No image is imported!")
 
+def processWindow():
+
+    newWindow = CTkToplevel(root)
+
+    newWindow.title("Process")
+
+    newWindow.geometry("1280x720")
+
+    newWindow.attributes("-topmost", True)
+
+    process_frame = CTkFrame(newWindow,width=NEWWINFRAMEX, height=NEWWINFRAMEY)
+    process_frame.pack(padx=20, pady=20, anchor="w")
+
+    process_label = CTkLabel(master=process_frame, text="")
+    process_label.pack(pady=10)
+    process_label.place(relx=0.5, rely=0.5, anchor=CENTER)
+   
+    img = Image.open("goated.jpeg")
+
+    img = displayImage(img, NEWWINFRAMEX, NEWWINFRAMEY)
+    process_image = CTkImage(light_image=img, dark_image=img, size=(img.width, img.height))
+    process_label.configure(image=process_image)   
+
+
+
 import_button = CTkButton(root, width=200, height=40, text="Import Image", 
                           command=getImage)
 import_button.pack(pady=10)
@@ -90,7 +120,7 @@ export_button.pack(pady=0)
 
 
 process_image_button = CTkButton(root, width=200, height=40, text="Process Image", 
-                          command=pixelSort)
+                          command=processWindow)
 process_image_button.pack(pady=10)
 
 image_label = CTkLabel(image_frame, text="")
