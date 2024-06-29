@@ -26,6 +26,10 @@ processed_image = None
 image_frame = CTkFrame(root, width=MAINFRAMEX, height=MAINFRAMEY)
 image_frame.pack(pady=20, padx=20)   
 
+image_label = CTkLabel(master=image_frame, text="")
+image_label.pack(pady=10)
+image_label.place(relx=0.5, rely=0.5, anchor=CENTER)
+
 
 def getImage():
     global original_image
@@ -100,7 +104,7 @@ def processWindow():
     process_label = CTkLabel(master=process_frame, text="")
     process_label.pack(pady=10)
     process_label.place(relx=0.5, rely=0.5, anchor=CENTER)
-   
+
     img = Image.open("goated.jpeg")
 
     img = displayImage(img, NEWWINFRAMEX, NEWWINFRAMEY)
@@ -123,9 +127,7 @@ process_image_button = CTkButton(root, width=200, height=40, text="Process Image
                           command=processWindow)
 process_image_button.pack(pady=10)
 
-image_label = CTkLabel(image_frame, text="")
-image_label.pack(pady=10)
-image_label.place(relx=0.5, rely=0.5, anchor=CENTER)
+
 
 
 #main loop
