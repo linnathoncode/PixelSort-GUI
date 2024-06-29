@@ -1,10 +1,10 @@
 from customtkinter import *
 from imageUtils import importImage, exportImage
 from processImage import processImage
-import tkinter as tk
+from tkinter import messagebox 
 from PIL import Image
 #theme
-set_appearance_mode("system")
+set_appearance_mode("light")
 set_default_color_theme("red.json")
 
 MAINFRAMEX = 600 
@@ -19,9 +19,12 @@ root.geometry("1280x720")
 root.title("Pixel Sort")
 root.iconbitmap("pixelsortlogo.ico")
 
+
+
 original_image = None
 displayed_image = None
 processed_image = None
+
 #image frame
 image_frame = CTkFrame(root, width=MAINFRAMEX, height=MAINFRAMEY)
 image_frame.pack(pady=20, padx=20)   
@@ -30,10 +33,10 @@ image_label = CTkLabel(master=image_frame, text="")
 image_label.pack(pady=10)
 image_label.place(relx=0.5, rely=0.5, anchor=CENTER)
 
-
 def getImage():
     global original_image
     global displayed_image
+    global processed_image
 
     #if there is already an image imported and user calls tries to import again but not import anything
     #img will countinue to be the already imported image 
@@ -43,11 +46,14 @@ def getImage():
         img = importImage(original_image)
 
     original_image = img
-    img = displayImage(img, MAINFRAMEX, MAINFRAMEY)
-    displayed_image = CTkImage(light_image=img, dark_image=img, size=(img.width,img.height))
+    return img
+
+def displayImage(img):
+    displayed_image = getImageSize(img, MAINFRAMEX, MAINFRAMEY)
+    displayed_image = CTkImage(light_image=displayed_image, dark_image=displayed_image, size=(displayed_image.width,displayed_image.height))
     image_label.configure(image=displayed_image)   
 
-def displayImage(img, FRAMEX, FRAMEY):
+def getImageSize(img, FRAMEX, FRAMEY):
     
     if img is not None:
         
@@ -77,44 +83,69 @@ def saveImage():
     elif processed_image is not None:
         exportImage(processed_image)
     else:
-        tk.messagebox.showerror("error", "No image is imported!")
+        messagebox.showerror("error", "No image is imported!")
 
-def pixelSort():
-    if original_image is not None:
-        global processed_image
-        processed_image = Image.new(original_image.mode, original_image.size)
-        processed_image = processImage(original_image)
-        displayImage(processed_image)
-    else:
-        tk.messagebox.showerror("error", "No image is imported!")
 
+    
 def processWindow():
+    if original_image is not None:
+        on_process_image = original_image
+        #window setup
+        newWindow = CTkToplevel(root)
+        newWindow.title("Process")
+        newWindow.geometry("1280x720")
+        newWindow.attributes("-topmost", True)
 
-    newWindow = CTkToplevel(root)
+        #frame & label setup
+        process_frame = CTkFrame(newWindow,width=NEWWINFRAMEX, height=NEWWINFRAMEY)
+        process_frame.grid(row=0, column=0, pady=20,padx=20, sticky='w')
 
-    newWindow.title("Process")
+        process_label = CTkLabel(master=process_frame, text="")
+        process_label.grid(row=0, column=0)
+        process_label.place(relx=0.5, rely=0.5, anchor=CENTER)
+        processWinDisplay(process_label, original_image)
 
-    newWindow.geometry("1280x720")
+        def pixelSort():
+            on_process_image = Image.new(original_image.mode, original_image.size)
+            on_process_image = processImage(original_image)
+            processWinDisplay(process_label, on_process_image)
 
-    newWindow.attributes("-topmost", True)
+        def saveChanges():
+            global processed_image
+            #saves the changes made to the image
+            processed_image = on_process_image
+            #displayes the image on the main menu
+            displayImage(processed_image)
+           # messagebox.showerror("", "Changes have been saved!")
 
-    process_frame = CTkFrame(newWindow,width=NEWWINFRAMEX, height=NEWWINFRAMEY)
-    process_frame.pack(padx=20, pady=20, anchor="w")
+        #button & sliders frame
+        preferences_frame = CTkFrame(newWindow, width=300, height=720)
 
-    process_label = CTkLabel(master=process_frame, text="")
-    process_label.pack(pady=10)
-    process_label.place(relx=0.5, rely=0.5, anchor=CENTER)
+        #process button
+        process_image_button = CTkButton(master=preferences_frame, width=200, height=40, text="Process Image", 
+                          command=pixelSort)
+        process_image_button.pack(pady=10, padx=20)
 
-    img = Image.open("goated.jpeg")
+        #save changes button
+        save_changes_button = CTkButton(master=preferences_frame, width=200, height=40, text="Save Changes", 
+                          command=saveChanges)
+        save_changes_button.pack(pady=10)
 
-    img = displayImage(img, NEWWINFRAMEX, NEWWINFRAMEY)
+        preferences_frame.grid(pady=20, padx=20,row=0, column=1, sticky="n")
+
+    else:
+        messagebox.showerror("error", "No image is imported!")
+
+def processWinDisplay(process_label, img):
+    img = getImageSize(img, NEWWINFRAMEX, NEWWINFRAMEY)
     process_image = CTkImage(light_image=img, dark_image=img, size=(img.width, img.height))
     process_label.configure(image=process_image)   
 
 
 
+
 import_button = CTkButton(root, width=200, height=40, text="Import Image", 
-                          command=getImage)
+                          command=lambda: [displayImage(getImage())])
 import_button.pack(pady=10)
 
 
