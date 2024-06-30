@@ -1,4 +1,3 @@
-# pixelSortApp.py
 from customtkinter import *
 from tkinter import messagebox
 from imageHandler import ImageHandler
