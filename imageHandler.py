@@ -1,5 +1,6 @@
 from PIL import Image
 from tkinter import filedialog
+from customtkinter import *
 class ImageHandler:
     def __init__(self):
         self.original_image = None
@@ -51,5 +52,15 @@ class ImageHandler:
 
     def process_image(self, process_function):
         if self.original_image is not None:
-            self.processed_image = process_function(self.original_image)
-        return self.processed_image
+            on_process_img = self.original_image
+            on_process_img = process_function(on_process_img)
+        return on_process_img
+
+    def save_changes(self, on_process):
+        self.processed_image = on_process
+
+    def displayImage(self, img, frame_x, frame_y, image_label):
+        resized_img = self.get_image_size(img, frame_x, frame_y)
+        displayed_image = CTkImage(light_image=resized_img, dark_image=resized_img, size=(resized_img.width, resized_img.height))
+        image_label.configure(image=displayed_image)
+        
