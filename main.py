@@ -17,8 +17,11 @@ class PixelSortApp:
         self.root = CTk()
         self.root.geometry("1280x720")
         self.root.title("PIXELSORT")
-        self.root.iconbitmap("pixelsortlogo.ico")
+        self.root.iconbitmap("icons/pixelsortlogo.ico")
 
+        self.export_icon = CTkImage(Image.open("icons/export.png"))
+        self.import_icon = CTkImage(Image.open("icons/import.png"))
+        self.pixelsort_icon = CTkImage(Image.open("icons/process.png"))
         # Image handler instance
         self.image_handler = ImageHandler()
 
@@ -34,13 +37,13 @@ class PixelSortApp:
         self.root.mainloop()
 
     def create_buttons(self):
-        import_button = CTkButton(self.root, width=200, height=40, text="Import Image", command=self.import_btnf)
+        import_button = CTkButton(self.root,image=self.import_icon, width=200, height=40, text="Import Image", command=self.import_btnf)
         import_button.pack(pady=10)
 
-        export_button = CTkButton(self.root, width=200, height=40, text="Export Image", command=self.export_image_btnf)
+        export_button = CTkButton(self.root, image=self.export_icon, width=200, height=40, text="Export Image", command=self.export_image_btnf)
         export_button.pack(pady=0)
 
-        pixelsort_image_button = CTkButton(self.root, width=200, height=40, text="Pixelsort Image", command=self.pixelsort_image_btnf)
+        pixelsort_image_button = CTkButton(self.root, image=self.pixelsort_icon, width=200, height=40, text="Pixelsort Image", command=self.pixelsort_image_btnf)
         pixelsort_image_button.pack(pady=10)
 
     def export_image_btnf(self):

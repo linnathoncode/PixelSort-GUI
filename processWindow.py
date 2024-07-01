@@ -1,6 +1,7 @@
 from customtkinter import *
 from tkinter import messagebox
 from sys import platform
+from PIL import Image
 NEWWINFRAMEX = 900
 NEWWINFRAMEY = 645
 
@@ -18,13 +19,14 @@ class ProcessWindow:
             self.new_window.title("Process")
             self.new_window.geometry("1280x720")
             self.new_window.attributes("-topmost", True)
-            self.new_window.iconbitmap("pixelsortlogo.ico")
-           
+            self.new_window.iconbitmap("icons/pixelsortlogo.ico")
+            self.save_icon = CTkImage(Image.open("icons/save.png"))
+            self.process_icon = CTkImage(Image.open("icons/process.png"))
             # Because CTkToplevel currently is bugged on windows
             # and doesn't check if a user specified icon is set
             # we need to set the icon again after 200ms
             if platform.startswith("win"):
-              self.new_window.after(200, lambda: self.new_window.iconbitmap("pixelsortlogo.ico"))
+              self.new_window.after(200, lambda: self.new_window.iconbitmap("icons/pixelsortlogo.ico"))
 
             # Frame & label setup
             self.process_frame = CTkFrame(self.new_window, width=NEWWINFRAMEX, height=NEWWINFRAMEY)
@@ -53,12 +55,12 @@ class ProcessWindow:
 
     def create_buttons_sliders(self):
             # Process button
-            self.process_image_button = CTkButton(master=self.preferences_frame, width=200, height=40, text="Process Image",
+            self.process_image_button = CTkButton(master=self.preferences_frame, image=self.process_icon, width=200, height=40, text="Process Image",
                                                   command=lambda: self.process_image_btnf())
             self.process_image_button.pack(pady=10, padx=20)
 
             # Save changes button
-            self.save_changes_button = CTkButton(master=self.preferences_frame, width=200, height=40, text="Save Changes",
+            self.save_changes_button = CTkButton(master=self.preferences_frame, image=self.save_icon, width=200, height=40, text="Save Changes",
                                                  command=self.save_changes_btnf)
             self.save_changes_button.pack(pady=10)
 
