@@ -6,11 +6,15 @@ NEWWINFRAMEX = 900
 NEWWINFRAMEY = 645
 
 class ProcessWindow:
+    # Class variable
+    # if any changes made to the image and then it is saved 
+    # new instance of the process window will start the slider and its label 
+    # with the correct number  
+    saturation_threshold = 0
     def __init__(self, root, image_handler, main_app):
         self.root = root
         self.image_handler = image_handler
         self.main_app = main_app
-        self.saturation_threshold = 0
 
 
         if self.image_handler.original_image is not None:
@@ -22,6 +26,7 @@ class ProcessWindow:
             self.new_window.iconbitmap("icons/pixelsortlogo.ico")
             self.save_icon = CTkImage(Image.open("icons/save.png"))
             self.process_icon = CTkImage(Image.open("icons/process.png"))
+
             # Because CTkToplevel currently is bugged on windows
             # and doesn't check if a user specified icon is set
             # we need to set the icon again after 200ms
@@ -31,8 +36,7 @@ class ProcessWindow:
             # Frame & label setup
             self.process_frame = CTkFrame(self.new_window, width=NEWWINFRAMEX, height=NEWWINFRAMEY)
             self.process_frame.grid(row=0, column=0, pady=20, padx=20, sticky='w')
-
-            self.process_label = CTkLabel(master=self.process_frame, text="")
+            self.process_label = CTkLabel(master=self.process_frame, text=ProcessWindow.saturation_threshold)
             self.process_label.grid(row=0, column=0)
             self.process_label.place(relx=0.5, rely=0.5, anchor=CENTER)
             self.process_win_display(self.on_process_img)
@@ -42,7 +46,7 @@ class ProcessWindow:
 
             self.create_buttons_sliders()
             
-            self.saturation_threshold_label = CTkLabel(master=self.preferences_frame, text="0")
+            self.saturation_threshold_label = CTkLabel(master=self.preferences_frame, text=ProcessWindow.saturation_threshold)
             self.saturation_threshold_label.pack()
 
             self.preferences_frame.grid(pady=20, padx=20, row=0, column=1, sticky="n")
@@ -65,11 +69,11 @@ class ProcessWindow:
             self.save_changes_button.pack(pady=10)
 
             self.slider = CTkSlider(self.preferences_frame, from_=0, to=255,command=self.sliderf)
-            self.slider.set(0)
+            self.slider.set(ProcessWindow.saturation_threshold)
             self.slider.pack(pady=10, padx=20)
 
     def sliderf(self,value):
-        self.saturation_threshold = value
+        ProcessWindow.saturation_threshold = int(value)
         self.saturation_threshold_label.configure(text=int(value))
 
     def process_image_btnf(self):
