@@ -50,10 +50,12 @@ class ProcessWindow:
         self.process_win_display(self.on_process_img)
 
     def process_win_display(self, img):
+        # Creates a replica image with the adjusted size for the frame and displays it
         img = self.image_handler.get_image_size(img, NEWWINFRAMEX, NEWWINFRAMEY)  # Returns Image
         processed_image = CTkImage(light_image=img, dark_image=img, size=(img.width, img.height))
         self.process_label.configure(image=processed_image)
 
     def save_changes_btnf(self):
+        # Saves the changes made in the pixelsort windows and displays the changed image on the main frame
         self.image_handler.save_changes(self.on_process_img)
         self.image_handler.display_image(self.image_handler.processed_image, self.main_app.MAINFRAMEX, self.main_app.MAINFRAMEY, self.main_app.image_label)
