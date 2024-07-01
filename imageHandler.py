@@ -29,8 +29,8 @@ class ImageHandler:
         if self.processed_image is None:
             return False
         try:
-            file_path = filedialog.askdirectory()
-            file_path += f"/untitled.{self.processed_image.format.lower()}"
+            file_path = filedialog.asksaveasfilename(initialdir="C:\Desktop", filetypes=[("Image files", "*.jpeg *.jpg *.png")])
+            file_path = f"{file_path}.{(self.processed_image.format).lower()}"
             print(file_path)
             self.processed_image.save(file_path)
         except Exception as error:
