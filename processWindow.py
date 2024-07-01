@@ -15,7 +15,7 @@ class ProcessWindow:
         self.root = root
         self.image_handler = image_handler
         self.main_app = main_app
-
+        self.temp_saturation_threshold = ProcessWindow.saturation_threshold
 
         if self.image_handler.original_image is not None:
             self.on_process_img = self.image_handler.processed_image
@@ -36,7 +36,7 @@ class ProcessWindow:
             # Frame & label setup
             self.process_frame = CTkFrame(self.new_window, width=NEWWINFRAMEX, height=NEWWINFRAMEY)
             self.process_frame.grid(row=0, column=0, pady=20, padx=20, sticky='w')
-            self.process_label = CTkLabel(master=self.process_frame, text=ProcessWindow.saturation_threshold)
+            self.process_label = CTkLabel(master=self.process_frame, text="")
             self.process_label.grid(row=0, column=0)
             self.process_label.place(relx=0.5, rely=0.5, anchor=CENTER)
             self.process_win_display(self.on_process_img)
@@ -46,7 +46,7 @@ class ProcessWindow:
 
             self.create_buttons_sliders()
             
-            self.saturation_threshold_label = CTkLabel(master=self.preferences_frame, text=ProcessWindow.saturation_threshold)
+            self.saturation_threshold_label = CTkLabel(master=self.preferences_frame, text=self.temp_saturation_threshold)
             self.saturation_threshold_label.pack()
 
             self.preferences_frame.grid(pady=20, padx=20, row=0, column=1, sticky="n")
@@ -69,11 +69,11 @@ class ProcessWindow:
             self.save_changes_button.pack(pady=10)
 
             self.slider = CTkSlider(self.preferences_frame, from_=0, to=255,command=self.sliderf)
-            self.slider.set(ProcessWindow.saturation_threshold)
+            self.slider.set(self.temp_saturation_threshold)
             self.slider.pack(pady=10, padx=20)
 
     def sliderf(self,value):
-        ProcessWindow.saturation_threshold = int(value)
+        self.temp_saturation_threshold = int(value)
         self.saturation_threshold_label.configure(text=int(value))
 
     def process_image_btnf(self):
@@ -89,5 +89,6 @@ class ProcessWindow:
 
     def save_changes_btnf(self):
         # Saves the changes made in the pixelsort windows and displays the changed image on the main frame
+        ProcessWindow.saturation_threshold =  self.temp_saturation_threshold
         self.image_handler.save_changes(self.on_process_img)
         self.image_handler.display_image(self.image_handler.processed_image, self.main_app.MAINFRAMEX, self.main_app.MAINFRAMEY, self.main_app.image_label)
