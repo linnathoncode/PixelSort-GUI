@@ -10,6 +10,7 @@ class ImageHandler:
         self.processed_image = None
         self.image_mode = None
         self.image_format = None
+        
     def import_image(self):
         if self.processed_image is None:
             self.processed_image = self.original_image
@@ -37,8 +38,8 @@ class ImageHandler:
             return True
         return True
 
-    def get_image_size(self, img, frame_x, frame_y):
-        # Returns the image sizes that fits to the given frame sizes
+    def get_adjusted_image_size(self, img, frame_x, frame_y):
+        # Returns the image sizes that fit to the given frame sizes
         if img is not None:
             img_ratio = img.width / img.height
             frame_ratio = frame_x / frame_y
@@ -66,7 +67,7 @@ class ImageHandler:
 
     def display_image(self, img, frame_x, frame_y, image_label):
         # Creates a duplicate image with the adjusted size and displays it 
-        resized_img = self.get_image_size(img, frame_x, frame_y)
+        resized_img = self.get_adjusted_image_size(img, frame_x, frame_y)
         self.displayed_image = CTkImage(light_image=resized_img, dark_image=resized_img, size=(resized_img.width, resized_img.height))
         image_label.configure(image=self.displayed_image)
     

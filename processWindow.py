@@ -1,6 +1,6 @@
 from customtkinter import *
 from tkinter import messagebox
-
+from sys import platform
 NEWWINFRAMEX = 900
 NEWWINFRAMEY = 645
 
@@ -11,12 +11,20 @@ class ProcessWindow:
         self.main_app = main_app
         self.saturation_threshold = 0
 
+
         if self.image_handler.original_image is not None:
             self.on_process_img = self.image_handler.processed_image
             self.new_window = CTkToplevel(self.root)
             self.new_window.title("Process")
             self.new_window.geometry("1280x720")
             self.new_window.attributes("-topmost", True)
+            self.new_window.iconbitmap("pixelsortlogo.ico")
+           
+            # Because CTkToplevel currently is bugged on windows
+            # and doesn't check if a user specified icon is set
+            # we need to set the icon again after 200ms
+            if platform.startswith("win"):
+              self.new_window.after(200, lambda: self.new_window.iconbitmap("pixelsortlogo.ico"))
 
             # Frame & label setup
             self.process_frame = CTkFrame(self.new_window, width=NEWWINFRAMEX, height=NEWWINFRAMEY)
@@ -37,6 +45,7 @@ class ProcessWindow:
 
             self.preferences_frame.grid(pady=20, padx=20, row=0, column=1, sticky="n")
             
+
 
         else:
             messagebox.showerror("error", "No image is imported!")
@@ -68,7 +77,7 @@ class ProcessWindow:
 
     def process_win_display(self, img):
         # Creates a replica image with the adjusted size for the frame and displays it
-        img = self.image_handler.get_image_size(img, NEWWINFRAMEX, NEWWINFRAMEY)  # Returns Image
+        img = self.image_handler.get_adjusted_image_size(img, NEWWINFRAMEX, NEWWINFRAMEY)  # Returns Image
         processed_image = CTkImage(light_image=img, dark_image=img, size=(img.width, img.height))
         self.process_label.configure(image=processed_image)
 

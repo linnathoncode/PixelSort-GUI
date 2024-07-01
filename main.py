@@ -16,7 +16,7 @@ class PixelSortApp:
         # Setup
         self.root = CTk()
         self.root.geometry("1280x720")
-        self.root.title("Pixel Sort")
+        self.root.title("PIXELSORT")
         self.root.iconbitmap("pixelsortlogo.ico")
 
         # Image handler instance
@@ -52,7 +52,8 @@ class PixelSortApp:
 
     def import_btnf(self):
         img = self.image_handler.import_image()
-        self.image_handler.display_image(img, self.MAINFRAMEX, self.MAINFRAMEY, self.image_label)
+        if img is not None:
+            self.image_handler.display_image(img, self.MAINFRAMEX, self.MAINFRAMEY, self.image_label)
 
 if __name__ == "__main__":
     main_app = PixelSortApp()
