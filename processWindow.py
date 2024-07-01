@@ -1,5 +1,4 @@
 from customtkinter import *
-from processImage import processImage
 from tkinter import messagebox
 
 NEWWINFRAMEX = 900
@@ -32,7 +31,7 @@ class ProcessWindow:
 
             # Process button
             self.process_image_button = CTkButton(master=self.preferences_frame, width=200, height=40, text="Process Image",
-                                                  command=lambda: self.process_image_function())
+                                                  command=lambda: self.process_image_btnf())
             self.process_image_button.pack(pady=10, padx=20)
 
             # Save changes button
@@ -45,9 +44,9 @@ class ProcessWindow:
         else:
             messagebox.showerror("error", "No image is imported!")
 
-    def process_image_function(self):
+    def process_image_btnf(self):
         # Passes processImage function as a parameter
-        self.on_process_img = self.image_handler.process_image(processImage)
+        self.on_process_img = self.image_handler.process_image()
         self.process_win_display(self.on_process_img)
 
     def process_win_display(self, img):
@@ -57,4 +56,4 @@ class ProcessWindow:
 
     def save_changes_btnf(self):
         self.image_handler.save_changes(self.on_process_img)
-        self.image_handler.displayImage(self.image_handler.processed_image, self.main_app.MAINFRAMEX, self.main_app.MAINFRAMEY, self.main_app.image_label)
+        self.image_handler.display_image(self.image_handler.processed_image, self.main_app.MAINFRAMEX, self.main_app.MAINFRAMEY, self.main_app.image_label)

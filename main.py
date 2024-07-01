@@ -10,8 +10,8 @@ class PixelSortApp:
         set_appearance_mode("light")
         set_default_color_theme("red.json")
 
-        self.MAINFRAMEX = 600 
-        self.MAINFRAMEY = 300
+        self.MAINFRAMEX = 900 
+        self.MAINFRAMEY = 450
 
         # Setup
         self.root = CTk()
@@ -37,22 +37,22 @@ class PixelSortApp:
         import_button = CTkButton(self.root, width=200, height=40, text="Import Image", command=self.import_btnf)
         import_button.pack(pady=10)
 
-        export_button = CTkButton(self.root, width=200, height=40, text="Export Image", command=self.save_image)
+        export_button = CTkButton(self.root, width=200, height=40, text="Export Image", command=self.export_image_btnf)
         export_button.pack(pady=0)
 
-        process_image_button = CTkButton(self.root, width=200, height=40, text="Process Image", command=self.process_image_btnf)
-        process_image_button.pack(pady=10)
+        pixelsort_image_button = CTkButton(self.root, width=200, height=40, text="Pixelsort Image", command=self.pixelsort_image_btnf)
+        pixelsort_image_button.pack(pady=10)
 
-    def save_image(self):
+    def export_image_btnf(self):
         if not self.image_handler.export_image():
             messagebox.showerror("error", "No image is imported!")
 
-    def process_image_btnf(self):
+    def pixelsort_image_btnf(self):
         ProcessWindow(self.root, self.image_handler, self)
 
     def import_btnf(self):
         img = self.image_handler.import_image()
-        self.image_handler.displayImage(img, self.MAINFRAMEX, self.MAINFRAMEY, self.image_label)
+        self.image_handler.display_image(img, self.MAINFRAMEX, self.MAINFRAMEY, self.image_label)
 
 if __name__ == "__main__":
     main_app = PixelSortApp()
