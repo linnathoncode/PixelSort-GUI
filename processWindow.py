@@ -9,6 +9,7 @@ class ProcessWindow:
         self.root = root
         self.image_handler = image_handler
         self.main_app = main_app
+        self.saturation_threshold = 0
 
         if self.image_handler.original_image is not None:
             self.on_process_img = self.image_handler.processed_image
@@ -29,6 +30,19 @@ class ProcessWindow:
             # Button & sliders frame
             self.preferences_frame = CTkFrame(self.new_window, width=300, height=720)
 
+            self.create_buttons_sliders()
+            
+            self.saturation_threshold_label = CTkLabel(master=self.preferences_frame, text="0")
+            self.saturation_threshold_label.pack()
+
+            self.preferences_frame.grid(pady=20, padx=20, row=0, column=1, sticky="n")
+            
+
+        else:
+            messagebox.showerror("error", "No image is imported!")
+
+
+    def create_buttons_sliders(self):
             # Process button
             self.process_image_button = CTkButton(master=self.preferences_frame, width=200, height=40, text="Process Image",
                                                   command=lambda: self.process_image_btnf())
@@ -39,14 +53,17 @@ class ProcessWindow:
                                                  command=self.save_changes_btnf)
             self.save_changes_button.pack(pady=10)
 
-            self.preferences_frame.grid(pady=20, padx=20, row=0, column=1, sticky="n")
+            self.slider = CTkSlider(self.preferences_frame, from_=0, to=255,command=self.sliderf)
+            self.slider.set(0)
+            self.slider.pack(pady=10, padx=20)
 
-        else:
-            messagebox.showerror("error", "No image is imported!")
+    def sliderf(self,value):
+        self.saturation_threshold = value
+        self.saturation_threshold_label.configure(text=int(value))
 
     def process_image_btnf(self):
         # Passes processImage function as a parameter
-        self.on_process_img = self.image_handler.process_image()
+        self.on_process_img = self.image_handler.process_image(self.saturation_threshold)
         self.process_win_display(self.on_process_img)
 
     def process_win_display(self, img):
