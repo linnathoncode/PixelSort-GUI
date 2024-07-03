@@ -91,35 +91,67 @@ class ImageHandler:
         sorted_image_pixels = []
         index = 0
 
-        with ThreadPoolExecutor() as executor:
-            futures = []
-            while index < len(on_process_image_pixels):
-                # Chunk is the chunk of pixels that will be sorted
-                while index < len(on_process_image_pixels) and ((sort_above_threshold and on_process_image_pixels[index][1] > threshold) or (not sort_above_threshold and on_process_image_pixels[index][1] < threshold)):
-                    chunk.append(on_process_image_pixels[index])
-                    index += 1
+        # It works in individual chunks now but creates glitchy images because of the use of multithreading
+        # it can be implemented as a glitch effect later
+        # with ThreadPoolExecutor() as executor:
+        #     futures = []
+        #     while index < len(on_process_image_pixels):
+        #         # Chunk is the chunk of pixels that will be sorted
+        #         while index < len(on_process_image_pixels) and ((sort_above_threshold and on_process_image_pixels[index][1] > threshold) or (not sort_above_threshold and on_process_image_pixels[index][1] < threshold)):
+        #             chunk.append(on_process_image_pixels[index])
+        #             index += 1
 
-                if chunk:
-                    # Sort the chunk using a separate thread
-                    futures.append(executor.submit(self.sort_chunk, chunk))
-                    chunk = []
+        #         if chunk:
+        #             # Sort the chunk using a separate thread
+        #             futures.append(executor.submit(self.sort_chunk, chunk))
+        #             chunk = []
 
-                # non_chunk is the pixels that won't be sorted
-                while index < len(on_process_image_pixels) and ((sort_above_threshold and on_process_image_pixels[index][1] <= threshold) or (not sort_above_threshold and on_process_image_pixels[index][1] >= threshold)):
-                    non_chunk.append(on_process_image_pixels[index])
-                    index += 1
+        #         # non_chunk is the pixels that won't be sorted
+        #         while index < len(on_process_image_pixels) and ((sort_above_threshold and on_process_image_pixels[index][1] <= threshold) or (not sort_above_threshold and on_process_image_pixels[index][1] >= threshold)):
+        #             non_chunk.append(on_process_image_pixels[index])
+        #             index += 1
 
-                if non_chunk:
-                    sorted_image_pixels.extend(non_chunk)
-                    non_chunk = []
+        #         if non_chunk:
+        #             sorted_image_pixels.extend(non_chunk)
+        #             non_chunk = []
 
-            # Append any remaining chunk
+        #     # Append any remaining chunk
+        #     if chunk:
+        #         futures.append(executor.submit(self.sort_chunk, chunk))
+
+        #     # Wait for all futures to complete and collect results
+        #     for future in futures:
+        #         sorted_image_pixels.extend(future.result())
+
+        while index < len(on_process_image_pixels):
+            # Chunk is the chunk of pixels that will be sorted
+            while index < len(on_process_image_pixels) and ((sort_above_threshold and on_process_image_pixels[index][1] > threshold) or (not sort_above_threshold and on_process_image_pixels[index][1] < threshold)):
+                chunk.append(on_process_image_pixels[index])
+                index += 1
+
             if chunk:
-                futures.append(executor.submit(self.sort_chunk, chunk))
+                # Sort the chunk using a separate thread
+                chunk = self.sort_chunk(chunk)
+                for pixel in range(len(chunk)):
+                    sorted_image_pixels.append(chunk[pixel])
+                chunk = []
 
-            # Wait for all futures to complete and collect results
-            for future in futures:
-                sorted_image_pixels.extend(future.result())
+            # non_chunk is the pixels that won't be sorted
+            while index < len(on_process_image_pixels) and ((sort_above_threshold and on_process_image_pixels[index][1] <= threshold) or (not sort_above_threshold and on_process_image_pixels[index][1] >= threshold)):
+                non_chunk.append(on_process_image_pixels[index])
+                index += 1
+
+            if non_chunk:
+                for pixel in range(len(non_chunk)):
+                    sorted_image_pixels.append(non_chunk[pixel])
+                non_chunk = []
+
+        # Append any remaining chunk
+        if chunk:
+            chunk = self.sort_chunk(chunk)
+            for pixel in range(len(chunk)):
+                sorted_image_pixels.append(chunk[pixel])
+            chunk = []
 
         # Create a new image with the same mode and size
         sorted_image = Image.new('HSV', on_process_image.size)
