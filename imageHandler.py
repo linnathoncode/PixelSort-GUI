@@ -1,7 +1,7 @@
 from PIL import Image
 from tkinter import filedialog
 from customtkinter import *
-import concurrent.futures
+from concurrent.futures import ThreadPoolExecutor
 
 class ImageHandler:
     def __init__(self):
@@ -73,6 +73,8 @@ class ImageHandler:
         self.displayed_image = CTkImage(light_image=resized_img, dark_image=resized_img, size=(resized_img.width, resized_img.height))
         image_label.configure(image=self.displayed_image)
     
+    # It works in individual chunks now but creates glitchy images because of the use of multithreading
+    # it can be implemented as a glitch effect later
     def pixelsort(self, threshold, sort_above_threshold):
         self.image_mode = self.original_image.mode
         self.image_format = self.original_image.format
@@ -86,29 +88,38 @@ class ImageHandler:
         # Separate pixels into chunks based on the saturation threshold
         chunk = []
         non_chunk = []
-        for pixel in on_process_image_pixels:
-            if (sort_above_threshold and pixel[1] > threshold) or (not sort_above_threshold and pixel[1] < threshold):
-                chunk.append(pixel)
-            else:
-                non_chunk.append(pixel)
-        
-        # Sort the chunk using multithreading
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            future = executor.submit(self.sort_chunk, chunk)
-            sorted_chunk = future.result()
-
-        # Reassemble the pixels
         sorted_image_pixels = []
-        chunk_index = 0
-        non_chunk_index = 0
-        
-        for pixel in on_process_image_pixels:
-            if (sort_above_threshold and pixel[1] > threshold) or (not sort_above_threshold and pixel[1] < threshold):
-                sorted_image_pixels.append(sorted_chunk[chunk_index])
-                chunk_index += 1
-            else:
-                sorted_image_pixels.append(non_chunk[non_chunk_index])
-                non_chunk_index += 1
+        index = 0
+
+        with ThreadPoolExecutor() as executor:
+            futures = []
+            while index < len(on_process_image_pixels):
+                # Chunk is the chunk of pixels that will be sorted
+                while index < len(on_process_image_pixels) and ((sort_above_threshold and on_process_image_pixels[index][1] > threshold) or (not sort_above_threshold and on_process_image_pixels[index][1] < threshold)):
+                    chunk.append(on_process_image_pixels[index])
+                    index += 1
+
+                if chunk:
+                    # Sort the chunk using a separate thread
+                    futures.append(executor.submit(self.sort_chunk, chunk))
+                    chunk = []
+
+                # non_chunk is the pixels that won't be sorted
+                while index < len(on_process_image_pixels) and ((sort_above_threshold and on_process_image_pixels[index][1] <= threshold) or (not sort_above_threshold and on_process_image_pixels[index][1] >= threshold)):
+                    non_chunk.append(on_process_image_pixels[index])
+                    index += 1
+
+                if non_chunk:
+                    sorted_image_pixels.extend(non_chunk)
+                    non_chunk = []
+
+            # Append any remaining chunk
+            if chunk:
+                futures.append(executor.submit(self.sort_chunk, chunk))
+
+            # Wait for all futures to complete and collect results
+            for future in futures:
+                sorted_image_pixels.extend(future.result())
 
         # Create a new image with the same mode and size
         sorted_image = Image.new('HSV', on_process_image.size)
@@ -119,7 +130,7 @@ class ImageHandler:
         # Convert the image back to its original mode
         final_image = sorted_image.convert(self.image_mode)
 
-        # Convert back to original format 
+        # Convert back to original format
         final_image.format = self.image_format
         
         return final_image
