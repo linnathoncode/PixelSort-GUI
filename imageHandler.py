@@ -73,8 +73,6 @@ class ImageHandler:
         self.displayed_image = CTkImage(light_image=resized_img, dark_image=resized_img, size=(resized_img.width, resized_img.height))
         image_label.configure(image=self.displayed_image)
     
-    # It works in individual chunks now but creates glitchy images because of the use of multithreading
-    # it can be implemented as a glitch effect later
     def pixelsort(self, threshold, sort_above_threshold):
         self.image_mode = self.original_image.mode
         self.image_format = self.original_image.format
