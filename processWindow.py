@@ -43,10 +43,12 @@ class ProcessWindow:
             # Button & sliders frame
             self.preferences_frame = CTkFrame(self.new_window, width=300, height=720)
 
+            self.saturation_threshold_label = CTkLabel(master=self.preferences_frame, text=self.temp_saturation_threshold)
+            self.saturation_threshold_label.pack(pady=5)
+
             self.create_buttons_sliders()
             
-            self.saturation_threshold_label = CTkLabel(master=self.preferences_frame, text=self.temp_saturation_threshold)
-            self.saturation_threshold_label.pack()
+
 
             self.preferences_frame.grid(pady=20, padx=20, row=0, column=1, sticky="n")
             
@@ -57,19 +59,21 @@ class ProcessWindow:
 
 
     def create_buttons_sliders(self):
-            # Process button
-            self.process_image_button = CTkButton(master=self.preferences_frame, image=self.process_icon, width=200, height=40, text="Process Image",
-                                                  command=lambda: self.process_image_btnf())
-            self.process_image_button.pack(pady=10, padx=20)
 
-            # Save changes button
-            self.save_changes_button = CTkButton(master=self.preferences_frame, image=self.save_icon, width=200, height=40, text="Save Changes",
-                                                 command=self.save_changes_btnf)
-            self.save_changes_button.pack(pady=10)
+        self.slider = CTkSlider(self.preferences_frame, from_=0, to=255,command=self.sliderf)
+        self.slider.set(self.temp_saturation_threshold)
+        self.slider.pack(pady=5, padx=20)
 
-            self.slider = CTkSlider(self.preferences_frame, from_=0, to=255,command=self.sliderf)
-            self.slider.set(self.temp_saturation_threshold)
-            self.slider.pack(pady=10, padx=20)
+        # Process button
+        self.process_image_button = CTkButton(master=self.preferences_frame, image=self.process_icon, width=200, height=40, text="Process Image",
+                                                command=lambda: self.process_image_btnf())
+        self.process_image_button.pack(pady=10, padx=20)
+
+        # Save changes button
+        self.save_changes_button = CTkButton(master=self.preferences_frame, image=self.save_icon, width=200, height=40, text="Save Changes",
+                                                command=self.save_changes_btnf)
+        self.save_changes_button.pack(pady=10, padx=20)
+
 
     def sliderf(self,value):
         self.temp_saturation_threshold = int(value)
