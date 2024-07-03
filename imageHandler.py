@@ -10,7 +10,9 @@ class ImageHandler:
         self.processed_image = None
         self.image_mode = None
         self.image_format = None
-        
+        self.saturation_threshold = 0
+        print(self.saturation_threshold)
+
     def import_image(self):
         if self.processed_image is None:
             self.processed_image = self.original_image
@@ -31,11 +33,11 @@ class ImageHandler:
         try:
             file_path = filedialog.asksaveasfilename(initialdir="C:\Desktop", filetypes=[("Image files", "*.jpeg *.jpg *.png")])
             file_path = f"{file_path}.{(self.processed_image.format).lower()}"
-            print(file_path)
             self.processed_image.save(file_path)
         except Exception as error:
             #print(error)
             return True
+        print(file_path)
         return True
 
     def get_adjusted_image_size(self, img, frame_x, frame_y):

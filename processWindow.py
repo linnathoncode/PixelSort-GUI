@@ -10,12 +10,11 @@ class ProcessWindow:
     # if any changes made to the image and then it is saved 
     # new instance of the process window will start the slider and its label 
     # with the correct number  
-    saturation_threshold = 0
     def __init__(self, root, image_handler, main_app):
         self.root = root
         self.image_handler = image_handler
         self.main_app = main_app
-        self.temp_saturation_threshold = ProcessWindow.saturation_threshold
+        self.temp_saturation_threshold = self.image_handler.saturation_threshold
 
         if self.image_handler.original_image is not None:
             self.on_process_img = self.image_handler.processed_image
@@ -78,7 +77,8 @@ class ProcessWindow:
 
     def process_image_btnf(self):
         # Passes processImage function as a parameter
-        self.on_process_img = self.image_handler.process_image(self.saturation_threshold)
+        self.main_app.new_change = True
+        self.on_process_img = self.image_handler.process_image(self.temp_saturation_threshold)
         self.process_win_display(self.on_process_img)
 
     def process_win_display(self, img):
@@ -89,6 +89,7 @@ class ProcessWindow:
 
     def save_changes_btnf(self):
         # Saves the changes made in the pixelsort windows and displays the changed image on the main frame
-        ProcessWindow.saturation_threshold =  self.temp_saturation_threshold
-        self.image_handler.save_changes(self.on_process_img)
-        self.image_handler.display_image(self.image_handler.processed_image, self.main_app.MAINFRAMEX, self.main_app.MAINFRAMEY, self.main_app.image_label)
+        if self.main_app.new_change:
+            self.image_handler.saturation_threshold =  self.temp_saturation_threshold
+            self.image_handler.save_changes(self.on_process_img)
+            self.image_handler.display_image(self.image_handler.processed_image, self.main_app.MAINFRAMEX, self.main_app.MAINFRAMEY, self.main_app.image_label)

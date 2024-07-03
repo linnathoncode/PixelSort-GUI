@@ -24,6 +24,8 @@ class PixelSortApp:
         self.pixelsort_icon = CTkImage(Image.open("icons/process.png"))
         # Image handler instance
         self.image_handler = ImageHandler()
+        # whether or not there is a new change made
+        self.new_change = False
 
         # Image frame
         self.image_frame = CTkFrame(self.root, width=self.MAINFRAMEX, height=self.MAINFRAMEY)
@@ -51,11 +53,14 @@ class PixelSortApp:
             messagebox.showerror("error", "No image is imported!")
 
     def pixelsort_image_btnf(self):
+        self.new_change = False
         ProcessWindow(self.root, self.image_handler, self)
 
     def import_btnf(self):
-        img = self.image_handler.import_image()
+        new_image_handler_instance = ImageHandler()
+        img = new_image_handler_instance.import_image()
         if img is not None:
+            self.image_handler = new_image_handler_instance
             self.image_handler.display_image(img, self.MAINFRAMEX, self.MAINFRAMEY, self.image_label)
 
 if __name__ == "__main__":
