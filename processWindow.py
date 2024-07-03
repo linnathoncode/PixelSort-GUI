@@ -6,10 +6,6 @@ NEWWINFRAMEX = 900
 NEWWINFRAMEY = 645
 
 class ProcessWindow:
-    # Class variable
-    # if any changes made to the image and then it is saved 
-    # new instance of the process window will start the slider and its label 
-    # with the correct number  
     def __init__(self, root, image_handler, main_app):
         self.root = root
         self.image_handler = image_handler
