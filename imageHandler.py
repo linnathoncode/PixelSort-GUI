@@ -59,7 +59,6 @@ class ImageHandler:
     def process_image(self, mode_threshold):
         if self.original_image is not None:
             on_process_img = self.original_image
-            #change threshold
             on_process_img = self.pixelsort(mode_threshold, True, self.main_app.mode_index)
         return on_process_img
 
