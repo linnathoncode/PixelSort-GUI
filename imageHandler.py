@@ -4,14 +4,13 @@ from customtkinter import *
 from concurrent.futures import ThreadPoolExecutor
 
 class ImageHandler:
-    def __init__(self):
+    def __init__(self, main_app):
         self.original_image = None
         self.displayed_image = None
         self.processed_image = None
         self.image_mode = None
         self.image_format = None
-        self.saturation_threshold = 0
-        print(self.saturation_threshold)
+        self.main_app = main_app
 
     def import_image(self):
         if self.processed_image is None:
@@ -57,11 +56,11 @@ class ImageHandler:
             return resized_img
         return None
 
-    def process_image(self, saturation_threshold):
+    def process_image(self, mode_threshold):
         if self.original_image is not None:
             on_process_img = self.original_image
             #change threshold
-            on_process_img = self.pixelsort(saturation_threshold, True)
+            on_process_img = self.pixelsort(mode_threshold, True, self.main_app.mode_index)
         return on_process_img
 
     def save_changes(self, on_process):
@@ -73,12 +72,13 @@ class ImageHandler:
         self.displayed_image = CTkImage(light_image=resized_img, dark_image=resized_img, size=(resized_img.width, resized_img.height))
         image_label.configure(image=self.displayed_image)
     
-    def pixelsort(self, threshold, sort_above_threshold):
+    def pixelsort(self, threshold, sort_above_threshold, mode_index):
         self.image_mode = self.original_image.mode
         self.image_format = self.original_image.format
 
         # Convert the image to HSV mode
-        on_process_image = self.original_image.convert('HSV')
+        # ex ("Hue", "HSV", 0)
+        on_process_image = self.original_image.convert(self.main_app.modes_list[mode_index][1])
         
         # Get the pixel data
         on_process_image_pixels = list(on_process_image.getdata())
@@ -123,7 +123,7 @@ class ImageHandler:
 
         while index < len(on_process_image_pixels):
             # Chunk is the chunk of pixels that will be sorted
-            while index < len(on_process_image_pixels) and ((sort_above_threshold and on_process_image_pixels[index][1] > threshold) or (not sort_above_threshold and on_process_image_pixels[index][1] < threshold)):
+            while index < len(on_process_image_pixels) and ((sort_above_threshold and on_process_image_pixels[index][self.main_app.modes_list[mode_index][2]] > threshold) or (not sort_above_threshold and on_process_image_pixels[index][self.main_app.modes_list[mode_index][2]] < threshold)):
                 chunk.append(on_process_image_pixels[index])
                 index += 1
 
@@ -135,7 +135,7 @@ class ImageHandler:
                 chunk = []
 
             # non_chunk is the pixels that won't be sorted
-            while index < len(on_process_image_pixels) and ((sort_above_threshold and on_process_image_pixels[index][1] <= threshold) or (not sort_above_threshold and on_process_image_pixels[index][1] >= threshold)):
+            while index < len(on_process_image_pixels) and ((sort_above_threshold and on_process_image_pixels[index][self.main_app.modes_list[mode_index][2]] <= threshold) or (not sort_above_threshold and on_process_image_pixels[index][self.main_app.modes_list[mode_index][2]] >= threshold)):
                 non_chunk.append(on_process_image_pixels[index])
                 index += 1
 
@@ -152,7 +152,7 @@ class ImageHandler:
             chunk = []
 
         # Create a new image with the same mode and size
-        sorted_image = Image.new('HSV', on_process_image.size)
+        sorted_image = Image.new(self.main_app.modes_list[mode_index][1], on_process_image.size)
         
         # Put the sorted pixel data into the new image
         sorted_image.putdata(sorted_image_pixels)

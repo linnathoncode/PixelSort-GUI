@@ -8,14 +8,14 @@ NEWWINFRAMEY = 645
 class ProcessWindow:
     def __init__(self, root, image_handler, main_app):
         self.root = root
-        self.image_handler = image_handler
         self.main_app = main_app
-        self.temp_saturation_threshold = self.image_handler.saturation_threshold
+        self.image_handler = image_handler
+        self.temp_mode_threshold =self.main_app.modes_list[self.main_app.mode_index][3]
 
         if self.image_handler.original_image is not None:
             self.on_process_img = self.image_handler.processed_image
             self.new_window = CTkToplevel(self.root)
-            self.new_window.title("Process")
+            self.new_window.title(f"Pixel Sort by {self.main_app.modes_list[self.main_app.mode_index][0]}")
             self.new_window.geometry("1280x720")
             self.new_window.attributes("-topmost", True)
             self.new_window.iconbitmap("icons/pixelsortlogo.ico")
@@ -39,8 +39,8 @@ class ProcessWindow:
             # Button & sliders frame
             self.preferences_frame = CTkFrame(self.new_window, width=300, height=720)
 
-            self.saturation_threshold_label = CTkLabel(master=self.preferences_frame, text=self.temp_saturation_threshold)
-            self.saturation_threshold_label.pack(pady=5)
+            self.mode_threshold_label = CTkLabel(master=self.preferences_frame, text=self.temp_mode_threshold)
+            self.mode_threshold_label.pack(pady=5)
 
             self.create_buttons_sliders()
             
@@ -48,16 +48,19 @@ class ProcessWindow:
 
             self.preferences_frame.grid(pady=20, padx=20, row=0, column=1, sticky="n")
             
-
-
+            #self.pre_process()
         else:
             messagebox.showerror("error", "No image is imported!")
 
+    def pre_process(self):
+        self.on_process_img = self.image_handler.process_image(self.temp_mode_threshold)
+        self.process_win_display(self.on_process_img)
+        return
 
     def create_buttons_sliders(self):
 
         self.slider = CTkSlider(self.preferences_frame, from_=0, to=255,command=self.sliderf)
-        self.slider.set(self.temp_saturation_threshold)
+        self.slider.set(self.temp_mode_threshold)
         self.slider.pack(pady=5, padx=20)
 
         # Process button
@@ -72,13 +75,13 @@ class ProcessWindow:
 
 
     def sliderf(self,value):
-        self.temp_saturation_threshold = int(value)
-        self.saturation_threshold_label.configure(text=int(value))
+        self.temp_mode_threshold = int(value)
+        self.mode_threshold_label.configure(text=int(value))
 
     def process_image_btnf(self):
         # Passes processImage function as a parameter
         self.main_app.new_change = True
-        self.on_process_img = self.image_handler.process_image(self.temp_saturation_threshold)
+        self.on_process_img = self.image_handler.process_image(self.temp_mode_threshold)
         self.process_win_display(self.on_process_img)
 
     def process_win_display(self, img):
@@ -90,6 +93,6 @@ class ProcessWindow:
     def save_changes_btnf(self):
         # Saves the changes made in the pixelsort windows and displays the changed image on the main frame
         if self.main_app.new_change:
-            self.image_handler.saturation_threshold =  self.temp_saturation_threshold
+            self.main_app.modes_list[self.main_app.mode_index][3] =  self.temp_mode_threshold
             self.image_handler.save_changes(self.on_process_img)
             self.image_handler.display_image(self.image_handler.processed_image, self.main_app.MAINFRAMEX, self.main_app.MAINFRAMEY, self.main_app.image_label)

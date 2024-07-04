@@ -22,10 +22,20 @@ class PixelSortApp:
         self.export_icon = CTkImage(Image.open("icons/export.png"))
         self.import_icon = CTkImage(Image.open("icons/import.png"))
         self.pixelsort_icon = CTkImage(Image.open("icons/process.png"))
-        # Image handler instance
-        self.image_handler = ImageHandler()
-        # whether or not there is a new change made
         self.new_change = False
+        
+        # name, mode, position, threshold
+        self.mode_index = 0
+        self.modes_list = [
+            ["Hue", "HSV", 0, 0],
+            ["Saturation", "HSV", 1, 0],
+            ["Value", "HSV", 2, 0]
+        ]
+
+        # Image handler instance
+        self.image_handler = ImageHandler(self)
+        # whether or not there is a new change made
+
 
         # Image frame
         self.image_frame = CTkFrame(self.root, width=self.MAINFRAMEX, height=self.MAINFRAMEY)
@@ -36,17 +46,33 @@ class PixelSortApp:
         self.image_label.place(relx=0.5, rely=0.5, anchor=CENTER)
 
         self.create_buttons()
+        self.create_preferences()
         self.root.mainloop()
 
-    def create_buttons(self):
-        import_button = CTkButton(self.root,image=self.import_icon, width=200, height=40, text="Import Image", command=self.import_btnf)
-        import_button.pack(pady=10)
+    def create_buttons(self):   
+        self.button_frame = CTkFrame(self.root, width=900, height=50)
+        import_button = CTkButton(self.button_frame,image=self.import_icon, width=200, height=40, text="Import Image", command=self.import_btnf)
+        import_button.grid(row= 0, column =0, pady=10, padx= 10)
 
-        export_button = CTkButton(self.root, image=self.export_icon, width=200, height=40, text="Export Image", command=self.export_image_btnf)
-        export_button.pack(pady=0)
+        export_button = CTkButton(self.button_frame, image=self.export_icon, width=200, height=40, text="Export Image", command=self.export_image_btnf)
+        export_button.grid(row= 0, column =1, pady=0, padx= 10)
 
-        pixelsort_image_button = CTkButton(self.root, image=self.pixelsort_icon, width=200, height=40, text="Pixelsort Image", command=self.pixelsort_image_btnf)
-        pixelsort_image_button.pack(pady=10)
+        pixelsort_image_button = CTkButton(self.button_frame, image=self.pixelsort_icon, width=200, height=40, text="Pixelsort Image", command=self.pixelsort_image_btnf)
+        pixelsort_image_button.grid(row= 0, column =2,pady=10, padx= 10)
+        self.button_frame.pack(anchor=CENTER)
+
+    def create_preferences(self):
+        display_list = [mode[0] for mode in self.modes_list]
+        self.modes_option = CTkOptionMenu(self.root, values=display_list, command=self.mode_changed)
+        self.modes_option.pack(pady=10)
+
+    def mode_changed(self, value):
+        index = 0
+        for mode in self.modes_list:
+            if mode[0] == value:
+                self.mode_index = index
+                break
+            index += 1
 
     def export_image_btnf(self):
         if not self.image_handler.export_image():
@@ -57,7 +83,7 @@ class PixelSortApp:
         ProcessWindow(self.root, self.image_handler, self)
 
     def import_btnf(self):
-        new_image_handler_instance = ImageHandler()
+        new_image_handler_instance = ImageHandler(self)
         img = new_image_handler_instance.import_image()
         if img is not None:
             self.image_handler = new_image_handler_instance
