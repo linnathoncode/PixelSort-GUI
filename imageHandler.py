@@ -75,8 +75,8 @@ class ImageHandler:
         self.image_mode = self.original_image.mode
         self.image_format = self.original_image.format
 
-        # Convert the image to HSV mode
-        # ex ("Hue", "HSV", 0)
+        # Convert the image to given mode
+        # ex ("Hue", "HSV", 0, 0) name, mode, position, threshold
         on_process_image = self.original_image.convert(self.main_app.modes_list[mode_index][1])
         
         # Get the pixel data
