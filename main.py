@@ -32,6 +32,13 @@ class PixelSortApp:
             ["Value", "HSV", 2, 0]
         ]
 
+        self.positions_list = [
+            "Horizontal",
+            "Vertical"
+            ]
+        
+        self.sort_position = self.positions_list[0]
+
         # Image handler instance
         self.image_handler = ImageHandler(self)
         # whether or not there is a new change made
@@ -62,9 +69,24 @@ class PixelSortApp:
         self.button_frame.pack(anchor=CENTER)
 
     def create_preferences(self):
-        display_list = [mode[0] for mode in self.modes_list]
-        self.modes_option = CTkOptionMenu(self.root, values=display_list, command=self.mode_changed)
-        self.modes_option.pack(pady=10)
+        self.preferences_frame = CTkFrame(self.root, width=900, height=50)
+        
+        self.modes_option_label = CTkLabel(self.preferences_frame, text="Sort by: ", font=("Arial", 16))
+        self.modes_option_label.grid(row=0, column=0, padx=5)
+
+        modes = [mode[0] for mode in self.modes_list]
+        self.modes_option = CTkOptionMenu(self.preferences_frame, values=modes, command=self.mode_changed)
+        self.modes_option.grid(row=0, column=1, padx=10)
+
+        self.positions_option_label = CTkLabel(self.preferences_frame, text="Position:", font=("Arial", 16))
+        self.positions_option_label.grid(row=0, column=2, padx=5)
+
+        self.positions_option = CTkOptionMenu(self.preferences_frame, values=self.positions_list, command=self.position_changed)
+        self.positions_option.grid(row=0, column=3, padx= 10)
+        self.preferences_frame.pack(pady=10)
+
+    def position_changed(self, value):
+        self.sort_position = value
 
     def mode_changed(self, value):
         index = 0

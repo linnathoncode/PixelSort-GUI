@@ -81,7 +81,7 @@ class ProcessWindow:
     def process_image_btnf(self):
         # Passes processImage function as a parameter
         self.main_app.new_change = True
-        self.on_process_img = self.image_handler.process_image(self.temp_mode_threshold)
+        self.on_process_img = self.image_handler.process_image(self.temp_mode_threshold, self.main_app.sort_position)
         self.process_win_display(self.on_process_img)
 
     def process_win_display(self, img):
