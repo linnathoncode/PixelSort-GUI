@@ -4,6 +4,7 @@ from customtkinter import *
 from concurrent.futures import ThreadPoolExecutor
 
 class ImageHandler:
+    exported_image_count = 1
     def __init__(self, main_app):
         self.original_image = None
         self.displayed_image = None
@@ -32,9 +33,10 @@ class ImageHandler:
         if self.processed_image is None:
             return False
         try:
-            file_path = filedialog.asksaveasfilename(initialdir="C:\Desktop", filetypes=[("Image files", "*.jpeg *.jpg *.png")], initialfile=f"untitled.{(self.processed_image.format).lower()}")
+            file_path = filedialog.asksaveasfilename(initialdir="C:\Desktop", filetypes=[("Image files", "*.jpeg *.jpg *.png")], initialfile=f"untitled{ImageHandler.exported_image_count}")
             file_path = f"{file_path}.{(self.processed_image.format).lower()}"
             self.processed_image.save(file_path)
+            ImageHandler.exported_image_count += 1
         except Exception as error:
             #print(error)
             return True
