@@ -60,6 +60,15 @@ class ImageHandler:
             return resized_img
         return None
 
+    def save_changes(self, on_process):
+        self.processed_image = on_process
+
+    def display_image(self, img, frame_x, frame_y, image_label):
+        # Creates a duplicate image with the adjusted size and displays it 
+        resized_img = self.get_adjusted_image_size(img, frame_x, frame_y)
+        self.displayed_image = CTkImage(light_image=resized_img, dark_image=resized_img, size=(resized_img.width, resized_img.height))
+        image_label.configure(image=self.displayed_image)
+    
     def process_image(self, mode_threshold, sort_position, sort_above_threshold=True ):
         if self.original_image is not None:
             self.mode_index = self.main_app.mode_index
@@ -73,18 +82,21 @@ class ImageHandler:
 
             # Sorted array initialization
             sorted_image_pixels = [None] * len(opi_pixels)
-
             if sort_position == "Horizontal":
                 opi_pixels_2d = [opi_pixels[i * width:(i + 1) * width] for i in range(height)]
-                for row in range(height):
-                    self.pixel_sort(opi_pixels_2d[row], row * width, sorted_image_pixels, mode_threshold, sort_above_threshold, self.mode_index, width, sort_position)
             elif sort_position == "Vertical":
-                opi_pixels_2d = [[opi_pixels[row * width + col] for row in range(height)] for col in range(width)]
-                for col in range(width):
-                    self.pixel_sort(opi_pixels_2d[col], col, sorted_image_pixels, mode_threshold, sort_above_threshold, self.mode_index, width, sort_position)
+                 opi_pixels_2d = [[opi_pixels[row * width + col] for row in range(height)] for col in range(width)]
             else:
                 raise ValueError(f"Unknown sort position: {sort_position}")
 
+            with ThreadPoolExecutor() as executor:
+                futures = []
+                for i, line_pixels in enumerate (opi_pixels_2d):
+                    start_index = i * width if sort_position == "Horizontal" else i
+                    futures.append(executor.submit(self.pixel_sort, line_pixels, start_index, sorted_image_pixels, mode_threshold, sort_above_threshold, self.mode_index, width, sort_position))
+
+            for future in futures:
+                future.result()  # Wait for all the threads to complete
             # Create a new image with the same mode and size
             sorted_image = Image.new(self.main_app.modes_list[self.mode_index][1], on_process_image.size)
             
@@ -98,49 +110,40 @@ class ImageHandler:
             final_image.format = self.image_format
             
             return final_image
-                
 
-    def save_changes(self, on_process):
-        self.processed_image = on_process
-
-    def display_image(self, img, frame_x, frame_y, image_label):
-        # Creates a duplicate image with the adjusted size and displays it 
-        resized_img = self.get_adjusted_image_size(img, frame_x, frame_y)
-        self.displayed_image = CTkImage(light_image=resized_img, dark_image=resized_img, size=(resized_img.width, resized_img.height))
-        image_label.configure(image=self.displayed_image)
-    
     def pixel_sort(self, line_pixels, start_index, sorted_image_pixels, threshold, sort_above_threshold, mode_index, width, sort_position):
-            chunk = []
-            non_chunk = []
-            chunk_indices = []
-            non_chunk_indices = []
+        chunk = []
+        non_chunk = []
+        chunk_indices = []
+        non_chunk_indices = []
 
-            stride = 1 if sort_position == "Horizontal" else width
+        # Step Size
+        stride = 1 if sort_position == "Horizontal" else width
 
-            for i, pixel in enumerate(line_pixels):
-                index = start_index + (i * stride)
+        for i, pixel in enumerate(line_pixels):
+            index = start_index + (i * stride)
 
-                if (sort_above_threshold and pixel[self.main_app.modes_list[mode_index][2]] > threshold) or (not sort_above_threshold and pixel[self.main_app.modes_list[mode_index][2]] < threshold):
-                    chunk.append(pixel)
-                    chunk_indices.append(index)
-                else:
-                    if chunk:
-                        sorted_chunk = self.sort_chunk(chunk)
-                        for idx, sorted_pixel in zip(chunk_indices, sorted_chunk):
-                            sorted_image_pixels[idx] = sorted_pixel
-                        chunk = []
-                        chunk_indices = []
-                    non_chunk.append(pixel)
-                    non_chunk_indices.append(index)
+            if (sort_above_threshold and pixel[self.main_app.modes_list[mode_index][2]] > threshold) or (not sort_above_threshold and pixel[self.main_app.modes_list[mode_index][2]] < threshold):
+                chunk.append(pixel)
+                chunk_indices.append(index)
+            else:
+                if chunk:
+                    sorted_chunk = self.sort_chunk(chunk)
+                    for idx, sorted_pixel in zip(chunk_indices, sorted_chunk):
+                        sorted_image_pixels[idx] = sorted_pixel
+                    chunk = []
+                    chunk_indices = []
+                non_chunk.append(pixel)
+                non_chunk_indices.append(index)
 
-            # Handle remaining chunks
-            if chunk:
-                sorted_chunk = self.sort_chunk(chunk)
-                for idx, sorted_pixel in zip(chunk_indices, sorted_chunk):
-                    sorted_image_pixels[idx] = sorted_pixel
-            if non_chunk:
-                for idx, pixel in zip(non_chunk_indices, non_chunk):
-                    sorted_image_pixels[idx] = pixel
+        # Handle remaining chunks
+        if chunk:
+            sorted_chunk = self.sort_chunk(chunk)
+            for idx, sorted_pixel in zip(chunk_indices, sorted_chunk):
+                sorted_image_pixels[idx] = sorted_pixel
+        if non_chunk:
+            for idx, pixel in zip(non_chunk_indices, non_chunk):
+                sorted_image_pixels[idx] = pixel
 
 
         # It works in individual chunks now but creates glitchy images because of the use of multithreading
